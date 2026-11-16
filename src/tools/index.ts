@@ -47,7 +47,7 @@ export function registerDhis2Tools(server: McpServer) {
       title: 'Find DHIS2 org unit',
       description: `Search for an organisation unit (state, LGA, ward, or health facility) by name.
 
-Use this FIRST to resolve a human-readable place name (e.g. "Ilorin South", "Ilorin South", a facility name) into the DHIS2 UID needed by other tools. Returns all fuzzy matches — if multiple results come back, check the "level" and "parent" fields to pick the right one before using its id elsewhere.
+Use this FIRST to resolve a human-readable place name (e.g. "Ilorin South", "Offa", a facility name) into the DHIS2 UID needed by other tools. Returns all fuzzy matches — if multiple results come back, check the "level" and "parent" fields to pick the right one before using its id elsewhere.
 
 Args:
   - name (string): Name or partial name to search for, e.g. "Kwara", "Ilorin", "Offa"
