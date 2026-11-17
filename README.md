@@ -132,3 +132,9 @@ In addition to the curated immunization tools, the server exposes the full DHIS2
 - `dhis2_get_system_info` — server version and the account's org-unit scope
 
 All of these are GET-only; account/credential endpoints are blocked.
+
+## Programme tools (v1.2)
+
+- `dhis2_get_vaccine_stock` — stock balance of vaccines, diluents, syringes, safety boxes (state, LGA, ward or facility, per month); optional stock movement (opening, received, opened, returned, stock-outs)
+- `dhis2_get_aefi` — AEFI cases (serious / non-serious) and serious cases investigated
+- `dhis2_get_supervision` — RI supportive supervision: facilities supervised, % supervised, supervision by National/State/LGA level
