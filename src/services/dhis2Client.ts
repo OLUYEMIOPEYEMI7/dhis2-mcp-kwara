@@ -430,3 +430,60 @@ export async function getSessionImplementationByLevel(
   );
   return assembleSessionRows(data, plannedDataElementId, conductedDataElementId);
 }
+
+
+// ---------------------------------------------------------------------
+// Generic, read-only access to ANY DHIS2 Web API endpoint (GET only).
+// ---------------------------------------------------------------------
+
+export type RawParamValue = string | number | boolean | Array<string | number | boolean>;
+
+// Endpoints that expose credentials/accounts are never proxied.
+const BLOCKED_API_PREFIXES = [
+  '/api/users', '/api/userCredentials', '/api/tokens', '/api/apiToken',
+  '/api/personalAccessTokens', '/api/userRoles', '/api/oAuth2Clients',
+  '/api/systemSettings', '/api/configuration', '/api/sessions'
+];
+
+export function validateApiPath(rawPath: string): string {
+  let path = rawPath.trim();
+  if (!path.startsWith('/')) path = '/' + path;
+  if (!path.startsWith('/api/') && path !== '/api') path = '/api' + path;
+  if (path.includes('..') || path.includes('//') || path.includes('?') || path.includes('#') || /[^A-Za-z0-9_\/.\-]/.test(path)) {
+    throw new Error('Invalid path. Use a plain DHIS2 API path like /api/indicators.json (put query options in "params").');
+  }
+  const lower = path.toLowerCase();
+  if (BLOCKED_API_PREFIXES.some(p => lower === p.toLowerCase() || lower.startsWith(p.toLowerCase() + '/') || lower.startsWith(p.toLowerCase() + '.'))) {
+    throw new Error('This endpoint is blocked because it exposes account or credential data.');
+  }
+  return path;
+}
+
+/**
+ * GET any DHIS2 API path with query parameters. Array values become repeated
+ * keys (e.g. filter, dimension), which is how the DHIS2 API expects them.
+ */
+export async function dhis2GetRaw(rawPath: string, params?: Record<string, RawParamValue>): Promise<unknown> {
+  const path = validateApiPath(rawPath);
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params ?? {})) {
+    if (Array.isArray(v)) v.forEach(item => qs.append(k, String(item)));
+    else qs.append(k, String(v));
+  }
+  const q = qs.toString();
+  const base = getEnv('DHIS2_BASE_URL').replace(/\/$/, '');
+  const token = getEnv('DHIS2_TOKEN');
+  const res = await fetch(base + path + (q ? '?' + q : ''), {
+    method: 'GET',
+    headers: { Authorization: `ApiToken ${token}`, Accept: 'application/json' }
+  });
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`DHIS2 API error ${res.status} for ${path}: ${text.slice(0, 600)}`);
+  }
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}

@@ -120,3 +120,15 @@ Test with the MCP Inspector:
 npx @modelcontextprotocol/inspector
 ```
 Point it at `http://localhost:3000/mcp` with the `X-MCP-Key` header set.
+
+## Generic read-only tools (v1.1)
+
+In addition to the curated immunization tools, the server exposes the full DHIS2 Web API for reading:
+
+- `dhis2_api_get` — GET any DHIS2 API path with query params (analytics, dataValueSets, tracker, approvals, system, etc.)
+- `dhis2_list_metadata` / `dhis2_get_metadata_object` — search and inspect any metadata type
+- `dhis2_query_analytics` — flexible analytics with any dimensions, filters and periods, names resolved
+- `dhis2_get_data_values` — raw submitted values (dataValueSets)
+- `dhis2_get_system_info` — server version and the account's org-unit scope
+
+All of these are GET-only; account/credential endpoints are blocked.

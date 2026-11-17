@@ -2,6 +2,7 @@ import express from 'express';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { registerDhis2Tools } from './tools/index.js';
+import { registerGenericDhis2Tools } from './tools/generic.js';
 
 const app = express();
 app.use(express.json());
@@ -35,9 +36,10 @@ function checkAuth(req: express.Request, res: express.Response): boolean {
 function buildServer(): McpServer {
   const server = new McpServer({
     name: 'dhis2-mcp-kwara',
-    version: '1.0.0'
+    version: '1.1.0'
   });
   registerDhis2Tools(server);
+  registerGenericDhis2Tools(server);
   return server;
 }
 
